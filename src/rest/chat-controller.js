@@ -6,10 +6,7 @@ const { popMessages, sendMessage } = require('../telegram')
 
 router.get('/chat', async (req, res) => {
     popMessages()
-        .then(messages => {
-            console.log(messages)
-            res.json(messages)
-        })
+        .then(messages => res.json(messages))
 })
 
 router.post('/chat', (req, res) => {
