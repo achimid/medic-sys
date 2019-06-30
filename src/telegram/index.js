@@ -1,8 +1,10 @@
 const config = require('../config')
 const Telegraf = require('telegraf')
 const bot = new Telegraf(config.telegram.TELEGRAM_BOT_TOKEN)
+const { consultAssistant } = require('../watson')
 
 let messagesCallback = []
+let sugestionsList = []
 
 function buildMessage ({ message, _ID }) {
     return `(@${_ID}) -> ${message}`
@@ -16,8 +18,21 @@ function extractMessage (original, text) {
     return { message: text, _ID}
 }
 
+function buildSugestion(message, assistantRetorno, ) {
+    return `Sugestão de resposta (@${message._ID}): \n${assistantRetorno} \n/${message._ID}_YES        /${message._ID}_NO`
+}
+
 const sendMessage = async (message) => {
-    bot.telegram.sendMessage(config.telegram.TELEGRAM_BOT_CHAT_ID, buildMessage(message))
+    const msg = buildMessage(message)
+    bot.telegram.sendMessage(config.telegram.TELEGRAM_BOT_CHAT_ID, msg)
+
+    consultAssistant()
+        .catch(retorno => {
+            const sugestion = buildSugestion(message, retorno)
+            sugestionsList.push(Object.assign(message, { sugestion: retorno }))
+            bot.telegram.sendMessage(config.telegram.TELEGRAM_BOT_CHAT_ID, sugestion)
+        }).catch(() => console.log('Assistant miss understand'))
+    
 }
 
 
@@ -28,6 +43,16 @@ const popMessages = async (_ID) => {
 }
 
 bot.on('text', (ctx) => {
+    
+    if (ctx.message.text.startsWith('/')) {
+        const partes = ctx.message.text.split('_')
+        if (partes[1] === 'YES') {
+            const sugs = sugestionsList.filter(s => s._ID === partes[0].replace('/', ''))
+            sugestionsList = sugestionsList.filter(s => s._ID !== partes[0].replace('/', ''))
+            sugs.map(s => messagesCallback.push({ message: s.sugestion, _ID: s._ID }) )
+        }
+    }
+
     const message = ctx.message.reply_to_message ? extractMessage(ctx.message.reply_to_message.text, ctx.message.text) : ctx.message.text
     messagesCallback.push(message)
 })
