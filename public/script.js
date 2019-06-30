@@ -37,10 +37,12 @@ function scrollDiv() {
 
 function sendMessage() {
     const message = $('#btn-input').val()
+    const json = { message, _ID }
+
     fetch("/api/v1/chat", 
         {
             method: "POST", 
-            body: JSON.stringify({message : message}),
+            body: JSON.stringify(json),
             headers: {'Content-Type':'application/json'}, 
         })
         .then(() => {
@@ -51,7 +53,7 @@ function sendMessage() {
 }
 
 function checkReceiveMessage() {
-    fetch('/api/v1/chat')
+    fetch(`/api/v1/chat/${_ID}`)
     .then(data => {
         data.json().then(messages => messages.map(m => $('.msg_container_base').append(getReceivedElement(m))))
     })
@@ -69,3 +71,5 @@ $(document).ready(function(){
         if(keycode == '13') sendMessage()
     });
 })
+
+const _ID = Math.random().toString(36).substr(2, 9)

@@ -4,16 +4,32 @@ const bot = new Telegraf(config.telegram.TELEGRAM_BOT_TOKEN)
 
 let messagesCallback = []
 
-const sendMessage = async (msg) => bot.telegram.sendMessage(config.telegram.TELEGRAM_BOT_CHAT_ID, msg)
+function buildMessage ({ message, _ID }) {
+    return `(@${_ID}) -> ${message}`
+}
 
-const popMessages = async () => {
-    const messages = messagesCallback
-    messagesCallback = []
+function extractMessage (original, text) {
+
+    const [id] = original.split('->')    
+    const _ID = id.replace('@', '').replace('(', '').replace(')', '').trim()
+
+    return { message: text, _ID}
+}
+
+const sendMessage = async (message) => {
+    bot.telegram.sendMessage(config.telegram.TELEGRAM_BOT_CHAT_ID, buildMessage(message))
+}
+
+
+const popMessages = async (_ID) => {
+    const messages = messagesCallback.filter(m => m._ID === _ID).map(m => m.message)
+    messagesCallback = messagesCallback.filter(m => m._ID !== _ID)
     return messages
 }
 
 bot.on('text', (ctx) => {
-    messagesCallback.push(ctx.message.text)
+    const message = ctx.message.reply_to_message ? extractMessage(ctx.message.reply_to_message.text, ctx.message.text) : ctx.message.text
+    messagesCallback.push(message)
 })
 
 bot.launch()
