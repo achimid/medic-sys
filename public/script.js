@@ -60,9 +60,13 @@ function checkReceiveMessage() {
     .then(scrollDiv)
 }
 
-
+function initMessage() {
+    $('.msg_container_base').append(getReceivedElement('Olá, tudo bem? Eu sou um assistente de assuntos médicos, como posso te ajudar?'))
+}
 
 $(document).ready(function(){
+    initMessage()
+
     setInterval(checkReceiveMessage, 2000)
     $('#btn-chat').click(sendMessage)
 

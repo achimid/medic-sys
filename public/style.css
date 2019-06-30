@@ -4,6 +4,23 @@ body {
     bottom: 0;
 }
 
+body, html {
+    height: 100%;
+}
+
+.bg {
+/* The image used */
+background-image: url("https://d3hdigcjoguoy1.cloudfront.net/ghost-images/images/2019/05/medico-usando-software-de-medicina.jpg");
+
+/* Full height */
+height: 100%;
+
+/* Center and scale the image nicely */
+background-position: center;
+background-repeat: no-repeat;
+background-size: cover;
+}
+
 .col-md-2,
 .col-md-10 {
     padding: 0;
