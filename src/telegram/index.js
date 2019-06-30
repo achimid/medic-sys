@@ -26,8 +26,8 @@ const sendMessage = async (message) => {
     const msg = buildMessage(message)
     bot.telegram.sendMessage(config.telegram.TELEGRAM_BOT_CHAT_ID, msg)
 
-    consultAssistant()
-        .catch(retorno => {
+    consultAssistant(msg)
+        .then(retorno => {
             const sugestion = buildSugestion(message, retorno)
             sugestionsList.push(Object.assign(message, { sugestion: retorno }))
             bot.telegram.sendMessage(config.telegram.TELEGRAM_BOT_CHAT_ID, sugestion)

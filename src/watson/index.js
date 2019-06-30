@@ -10,12 +10,12 @@ const consultAssistant = (text) => new Promise((resolve, reject) => {
         context: {}
     }
 
-    assistant.message(params, (err, response) => {        
+    assistant.message(params, (err, response) => {    
         if (err) {
             reject('Desculpe houve um problema, favor tentar novamente')
         } else if (response.output.text.join(' ') === 'Eu não entendi. Você pode tentar reformular a frase.') {
             reject(response.output.text.join(' '))
-        }else {
+        } else {
             resolve(response.output.text.join(' '))
         }
     })
